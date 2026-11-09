@@ -199,7 +199,9 @@ public final class MainActivity extends Activity {
 
     private void refreshAccount() {
         if (sessionToken == null) return;
-        api.request("/v1/me", "GET", null, sessionToken, (response,error) -> runOnUiThread(() -> {
+        final String requestedToken = sessionToken;
+        api.request("/v1/me", "GET", null, requestedToken, (response,error) -> runOnUiThread(() -> {
+            if (!requestedToken.equals(sessionToken)) return;
             if (error != null) { accountText.setText("Session unavailable: " + error); return; }
             tier = response.optString("tier", "free");
             accountText.setText(response.optString("email", "Signed in"));
@@ -221,7 +223,10 @@ public final class MainActivity extends Activity {
     }
 
     private void loadServers() {
-        api.request("/v1/servers", "GET", null, sessionToken, (response,error) -> runOnUiThread(() -> {
+        if (sessionToken == null) return;
+        final String requestedToken = sessionToken;
+        api.request("/v1/servers", "GET", null, requestedToken, (response,error) -> runOnUiThread(() -> {
+            if (!requestedToken.equals(sessionToken)) return;
             if (error != null) { serverText.setText("Server list unavailable"); return; }
             JSONArray servers = response.optJSONArray("servers");
             serversContainer.removeAllViews();
