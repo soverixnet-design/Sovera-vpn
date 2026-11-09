@@ -133,7 +133,7 @@ public final class MainActivity extends Activity {
         premium.addView(text("SOVERA VIP", 18, GOLD, true));
         tierText = text("Free plan • Ads supported", 14, Color.WHITE, false); premium.addView(tierText, block(9));
         premium.addView(text("VIP offers ad-free usage and premium servers after Google Play Billing and verified entitlement are activated.", 13, PALE, false), block(7));
-        vipButton = button("Monthly VIP • Coming soon", false); vipButton.setEnabled(false);
+        vipButton = button("Monthly VIP • $3/month (planned)", false); vipButton.setEnabled(false);
         premium.addView(vipButton, block(14));
         adsText = text("FREE PLAN AD SPACE — AdMob not configured", 11, PALE, true);
         adsText.setGravity(Gravity.CENTER); root.addView(adsText, block(26));
@@ -178,7 +178,7 @@ public final class MainActivity extends Activity {
     private void refreshPlans() {
         api.request("/v1/plans", "GET", null, null, (response,error) -> runOnUiThread(() -> {
             if (error != null) return;
-            vipButton.setText("Monthly VIP • Available after Play setup");
+            vipButton.setText("Monthly VIP • $3/month (Play setup pending)");
         }));
     }
 

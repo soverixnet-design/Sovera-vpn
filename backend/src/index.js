@@ -119,7 +119,13 @@ async function route(request, env) {
   if (pathname === "/v1/plans" && method === "GET") {
     return reply({ plans: [
       { id: "free", ads: true, duration: "unlimited", vpn_access: "when_server_configured" },
-      { id: "vip_monthly", ads: false, duration: "P1M", product_id: "sovera_vpn_monthly", price: null, purchase_enabled: false },
+      {
+        id: "vip_monthly", ads: false, duration: "P1M",
+        product_id: "sovera_vpn_monthly", price: null,
+        proposed_price: { amount: 3, currency: "USD" },
+        price_source: "proposal_only_google_play_not_configured",
+        purchase_enabled: false,
+      },
     ] });
   }
   if (pathname === "/admin" && method === "GET") {

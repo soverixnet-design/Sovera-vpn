@@ -14,6 +14,7 @@ An original, clean-room Android VPN product project. It is **not** a repackaged 
 - D1 schema for users, sessions, server metadata, VIP entitlements and admin audit.
 - Web-based admin dashboard with role-protected user management, manual VIP grants, account blocking and draft server entries.
 - Free (ads intended) and monthly VIP (ad-free intended) plan metadata.
+- Proposed VIP price is **US$3 per month**. This is not a live price or purchase offer: Google Play will supply the actual localized price after its subscription product is configured.
 - API tests (`cd backend && npm test`).
 - GitHub Actions checks for Cloudflare API syntax/tests and a preview Android APK build.
 - New Android package `com.soverixnet.soveravpn`, targeting Android 16 / API 36.
@@ -28,6 +29,7 @@ An original, clean-room Android VPN product project. It is **not** a repackaged 
 | `backend/cloudflare.config.ts` | `cf` CLI project config (Cloudflare Workers + D1) |
 | `docs/ARCHITECTURE.md` | End-to-end architecture and security boundaries |
 | `docs/RELEASE_CHECKLIST.md` | Honest checklist for Play release readiness |
+| `docs/SERVER_HANDOFF.md` | Server access verification and owner handoff checklist |
 
 ## Build / test
 
@@ -39,7 +41,7 @@ npm install
 npm test
 ```
 
-The official `cf` CLI configuration is in `backend/cloudflare.config.ts` and expects a D1 database named `sovera-vpn-staging`. Do not deploy until the migration and security prerequisites are in place. Do not put tokens, API keys or VPN private keys into source code.
+The official `cf` CLI configuration is in `backend/cloudflare.config.ts`. The `sovera-vpn-staging` D1 database and `sovera-vpn-control-staging` Worker were created in the owner's Cloudflare account on November 9, 2026. Its public Worker subdomain remains **disabled** until the security, abuse protections and real VPN endpoint are ready. Do not put tokens, API keys or VPN private keys into source code.
 
 ### Android
 

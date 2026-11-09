@@ -20,6 +20,8 @@ test("plans advertise free ads and unactivated VIP purchase", async () => {
   const { plans } = await r.json();
   assert.equal(plans[0].ads, true);
   assert.equal(plans[1].purchase_enabled, false);
+  assert.deepEqual(plans[1].proposed_price, { amount: 3, currency: "USD" });
+  assert.equal(plans[1].price, null);
 });
 
 test("missing database fails closed", async () => {
