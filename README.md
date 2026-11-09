@@ -15,6 +15,7 @@ An original, clean-room Android VPN product project. It is **not** a repackaged 
 - Web-based admin dashboard with role-protected user management, manual VIP grants, account blocking and draft server entries.
 - Free (ads intended) and monthly VIP (ad-free intended) plan metadata.
 - API tests (`cd backend && npm test`).
+- GitHub Actions checks for Cloudflare API syntax/tests and a preview Android APK build.
 - New Android package `com.soverixnet.soveravpn`, targeting Android 16 / API 36.
 
 ## Repository structure
@@ -43,6 +44,8 @@ The official `cf` CLI configuration is in `backend/cloudflare.config.ts` and exp
 ### Android
 
 Open `android/` in Android Studio (JDK 17, Android SDK 36, Gradle 8.13). A Gradle wrapper **property file** is included, but the wrapper binary is not generated in this environment. Generate the wrapper with a trusted local Gradle installation if needed. Use `SOVERA_API_BASE_URL` as a Gradle project property to set an HTTPS Worker URL. The application does not connect to a VPN in this preview.
+
+The GitHub Actions build can compile the debug preview and attach it as an artifact after the workflow passes; it does **not** create a working VPN or a Play Store-ready signed AAB.
 
 ## Security and limitations
 
