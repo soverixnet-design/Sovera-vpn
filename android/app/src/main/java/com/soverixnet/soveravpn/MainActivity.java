@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public final class MainActivity extends Activity {
@@ -25,11 +26,13 @@ public final class MainActivity extends Activity {
     private static final int GOLD = Color.rgb(247, 210, 117);
     private static final int PALE = Color.rgb(186, 203, 237);
     private ApiClient api;
+    private SessionStore sessions;
     private String sessionToken;
     private String tier = "free";
-    private TextView statusText, accountText, serverText, tierText, adsText;
+    private TextView statusText, accountText, serverText, tierText;
     private EditText emailField, passwordField;
-    private Button loginButton, connectButton, vipButton;
+    private Button loginButton, registerButton, connectButton, vipButton, logoutButton;
+    private LinearLayout serversContainer;
 
     private int dp(float value) { return (int) (getResources().getDisplayMetrics().density * value + .5f); }
 
@@ -81,6 +84,8 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         api = new ApiClient(BuildConfig.SOVERA_API_BASE_URL);
+        sessions = new SessionStore(this);
+        sessionToken = sessions.load();
         getWindow().setStatusBarColor(NAVY);
         getWindow().setNavigationBarColor(NAVY);
         ScrollView scroll = new ScrollView(this);
@@ -117,8 +122,9 @@ public final class MainActivity extends Activity {
         server.addView(text("SERVER LOCATION", 12, GOLD, true));
         serverText = text("No active servers", 18, Color.WHITE, true);
         server.addView(serverText, block(8));
-        TextView serverHint = text("Cloudflare provides account and server metadata. A separate VPN endpoint carries traffic.", 12, PALE, false);
+        TextView serverHint = text("Cloudflare manages server information. A separate encrypted VPN gateway is required for traffic.", 12, PALE, false);
         server.addView(serverHint, block(10));
+        serversContainer = column(); server.addView(serversContainer, block(10));
 
         LinearLayout account = card(); root.addView(account, block(14));
         account.addView(text("ACCOUNT", 12, GOLD, true));
@@ -126,18 +132,19 @@ public final class MainActivity extends Activity {
         emailField = edit("Email address", false); account.addView(emailField, block(12));
         passwordField = edit("Password (12+ characters)", true); account.addView(passwordField, block(10));
         loginButton = button("Sign in", true); account.addView(loginButton, block(12));
-        Button register = button("Create account", false); account.addView(register, block(9));
-        loginButton.setOnClickListener(v -> authorize(false)); register.setOnClickListener(v -> authorize(true));
+        registerButton = button("Create account", false); account.addView(registerButton, block(9));
+        loginButton.setOnClickListener(v -> authorize(false)); registerButton.setOnClickListener(v -> authorize(true));
+        logoutButton = button("Sign out", false); logoutButton.setVisibility(View.GONE);
+        account.addView(logoutButton, block(9)); logoutButton.setOnClickListener(v -> logout());
 
         LinearLayout premium = card(); root.addView(premium, block(14));
         premium.addView(text("SOVERA VIP", 18, GOLD, true));
-        tierText = text("Free plan • Ads supported", 14, Color.WHITE, false); premium.addView(tierText, block(9));
-        premium.addView(text("VIP offers ad-free usage and premium servers after Google Play Billing and verified entitlement are activated.", 13, PALE, false), block(7));
+        tierText = text("Free plan • No ads at launch", 14, Color.WHITE, false); premium.addView(tierText, block(9));
+        premium.addView(text("VIP will offer premium server access after Google Play Billing and verified entitlement are activated. All plans are currently ad-free.", 13, PALE, false), block(7));
         vipButton = button("Monthly VIP • $3/month (planned)", false); vipButton.setEnabled(false);
         premium.addView(vipButton, block(14));
-        adsText = text("FREE PLAN AD SPACE — AdMob not configured", 11, PALE, true);
-        adsText.setGravity(Gravity.CENTER); root.addView(adsText, block(26));
         if (api.isConfigured()) refreshPlans();
+        if (sessionToken != null) refreshAccount();
     }
 
     private void alert(String title, String message) {
@@ -159,8 +166,35 @@ public final class MainActivity extends Activity {
                 if (register) { alert("Account created", "Your account is ready. Please sign in."); return; }
                 sessionToken = response.optString("token", null);
                 passwordField.setText("");
+                try { sessions.save(sessionToken); }
+                catch (Exception saveError) {
+                    sessionToken = null;
+                    alert("Secure session", "Could not securely save login. Please check your device security settings.");
+                    return;
+                }
                 refreshAccount();
             }));
+    }
+
+    private void logout() {
+        final String oldToken = sessionToken;
+        sessionToken = null;
+        sessions.clear();
+        tier = "free";
+        accountText.setText("Guest • Sign in to view servers");
+        tierText.setText("Free plan • No ads at launch");
+        logoutButton.setVisibility(View.GONE);
+        emailField.setVisibility(View.VISIBLE);
+        passwordField.setVisibility(View.VISIBLE);
+        loginButton.setVisibility(View.VISIBLE);
+        registerButton.setVisibility(View.VISIBLE);
+        serverText.setText("Sign in to view servers");
+        serversContainer.removeAllViews();
+        if (oldToken != null && api.isConfigured()) {
+            api.request("/v1/auth/logout", "POST", null, oldToken, (response, error) -> {
+                if (error != null) runOnUiThread(() -> alert("Signed out on device", "The server could not be reached to revoke the session; it will expire automatically."));
+            });
+        }
     }
 
     private void refreshAccount() {
@@ -169,8 +203,12 @@ public final class MainActivity extends Activity {
             if (error != null) { accountText.setText("Session unavailable: " + error); return; }
             tier = response.optString("tier", "free");
             accountText.setText(response.optString("email", "Signed in"));
-            tierText.setText("vip".equals(tier) ? "VIP plan • Ad-free" : "Free plan • Ads supported");
-            adsText.setVisibility("vip".equals(tier) ? View.GONE : View.VISIBLE);
+            tierText.setText("vip".equals(tier) ? "VIP plan • No ads" : "Free plan • No ads at launch");
+            logoutButton.setVisibility(View.VISIBLE);
+            emailField.setVisibility(View.GONE);
+            passwordField.setVisibility(View.GONE);
+            loginButton.setVisibility(View.GONE);
+            registerButton.setVisibility(View.GONE);
             loadServers();
         }));
     }
@@ -185,9 +223,24 @@ public final class MainActivity extends Activity {
     private void loadServers() {
         api.request("/v1/servers", "GET", null, sessionToken, (response,error) -> runOnUiThread(() -> {
             if (error != null) { serverText.setText("Server list unavailable"); return; }
-            org.json.JSONArray servers = response.optJSONArray("servers");
-            if (servers == null || servers.length() == 0) { serverText.setText("No active servers"); return; }
-            serverText.setText(servers.length() + " server(s) listed • Transport not configured");
+            JSONArray servers = response.optJSONArray("servers");
+            serversContainer.removeAllViews();
+            if (servers == null || servers.length() == 0) { serverText.setText("No available server locations yet"); return; }
+            serverText.setText(servers.length() + " location(s) • Connections unavailable");
+            for (int i = 0; i < servers.length(); i++) {
+                JSONObject location = servers.optJSONObject(i);
+                if (location == null) continue;
+                LinearLayout item = column();
+                item.setPadding(dp(13), dp(12), dp(13), dp(12));
+                item.setBackground(shape(0xFF071938, 12, 0xFF385EAE));
+                String name = location.optString("name", "Server");
+                String country = location.optString("country_code", "");
+                item.addView(text(name + " • " + country, 15, Color.WHITE, true));
+                item.addView(text(location.optString("protocol", "VPN").toUpperCase(java.util.Locale.ROOT)
+                    + "  •  " + (location.optBoolean("vip_only") ? "VIP" : "FREE")
+                    + "  •  Not connected", 12, PALE, false), block(5));
+                serversContainer.addView(item, block(8));
+            }
         }));
     }
 }

@@ -3,12 +3,12 @@
 | Item | State | Required action |
 | --- | --- | --- |
 | Original branding | Started | Generated new SOVERA VPN logo; review icon for Play asset dimensions |
-| Android project | Source preview | Build with Android SDK 36 on JDK 17, run unit/device tests |
+| Android project | Source preview | Encrypted session persistence and server catalog prepared; build with Android SDK 36 on JDK 17, run unit/device tests |
 | Actual VPN connection | **BLOCKED** | Supply authorized endpoint, protocol configuration and audited client transport |
 | Cloudflare control API | Source complete / test preview | Create isolated D1, apply migration, deploy Worker, verify HTTPS and roles |
 | User login | API code exists | Add rate limiting, abuse protection, security audit and real end-to-end test |
 | Admin panel | Source code exists | Promote one verified admin, run protected live tests |
-| Free tier ads | **BLOCKED** | Create AdMob app/ad units; integrate SDK and region-appropriate consent; test live ad policy |
+| Free tier ads | **DEFERRED BY OWNER** | Both tiers are ad-free; do not add AdMob or an ad UI. Reassess disclosure, consent and policy only if ads are requested later |
 | Monthly VIP billing | **BLOCKED** | Create product ID `sovera_vpn_monthly` in Play Console, configure verified purchases and server subscription states |
 | Billing changes | **BLOCKED** | Handle refund, cancel, grace period, account hold, expiry and Real-time Developer Notifications |
 | VPN disclosure | **BLOCKED** | In-app explanation/consent, VPN use in store listing, encryption to endpoint, policy declaration and demonstration video |
@@ -37,6 +37,6 @@ Google Play requirements verified 2026-11-09: new apps and app updates must targ
 
 - Proof of control over a VPN endpoint (VPS/host with public IP) and preferred first location; use an approved secret-sharing path for any credentials, never plain chat.
 - The Google Play Console app and monthly subscription product ID; never share Play signing private keys.
-- AdMob account/app ID and placement choices; do not use a production ad unit before policy review.
+- No AdMob information is required now; advertising is explicitly out of scope for this release.
 - A support email, privacy-policy URL, and required account deletion/retention rules.
 - Whether the first users are internal testers or public users.

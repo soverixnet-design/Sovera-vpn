@@ -7,7 +7,7 @@
 3. **D1:** users, password hashes, session hashes, entitlements, server metadata and audit records.
 4. **VPN endpoint(s), not yet provided:** Linux hosts running an authorized WireGuard/OpenVPN or other audited engine. The endpoint actually receives and forwards encrypted user traffic. It must be deployed and protected separately.
 5. **Google Play Billing:** monthly subscription sold through Play when product `sovera_vpn_monthly` is configured. Purchase state must be verified on the server with the Google Play Developer API, and subscription notifications must be handled.
-6. **AdMob:** in-app banners for free users (not ads injected into VPN traffic), subject to AdMob IDs, data disclosures and consent configuration. Paid VIP users see no ads.
+6. **Advertising (deferred):** neither tier shows ads now. Any future in-app ads require an explicit product decision, policy review, appropriate user consent and separate implementation. Never modify or inject ads into tunneled network traffic.
 
 ## Trust boundary
 
@@ -29,7 +29,7 @@ Public account registration creates users with role `user`. Only an existing adm
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/health` | Honest service state; VPN transport not configured |
-| GET | `/v1/plans` | Free/Ads and intended monthly VIP plan |
+| GET | `/v1/plans` | Ad-free Free tier and proposed monthly VIP plan; purchases disabled |
 | POST | `/v1/auth/register` | Create standard account |
 | POST | `/v1/auth/login` | Obtain session token |
 | POST | `/v1/auth/logout` | Revoke session |

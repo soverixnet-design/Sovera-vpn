@@ -118,7 +118,7 @@ async function route(request, env) {
   }
   if (pathname === "/v1/plans" && method === "GET") {
     return reply({ plans: [
-      { id: "free", ads: true, duration: "unlimited", vpn_access: "when_server_configured" },
+      { id: "free", ads: false, duration: "unlimited", vpn_access: "when_server_configured" },
       {
         id: "vip_monthly", ads: false, duration: "P1M",
         product_id: "sovera_vpn_monthly", price: null,
@@ -126,7 +126,7 @@ async function route(request, env) {
         price_source: "proposal_only_google_play_not_configured",
         purchase_enabled: false,
       },
-    ] });
+    ], advertising: { enabled: false, status: "paused_until_owner_enables" } });
   }
   if (pathname === "/admin" && method === "GET") {
     const nonce = randomHex(16);
@@ -191,7 +191,8 @@ async function route(request, env) {
   if (pathname === "/v1/servers" && method === "GET") {
     const user = await getUser(request, db);
     const rows = await db.prepare("SELECT id,name,country_code,protocol,vip_only,endpoint_ready FROM vpn_servers WHERE enabled=1 ORDER BY country_code,name").all();
-    return reply({ tier: activeTier(user), servers: (rows.results || []).map(s => ({
+    const tier = activeTier(user);
+    return reply({ tier, servers: (rows.results || []).filter(s => tier === "vip" || !s.vip_only).map(s => ({
       id: s.id, name: s.name, country_code: s.country_code, protocol: s.protocol,
       vip_only: Boolean(s.vip_only), connectable: false, reason: "VPN endpoint provisioning not integrated",
     })) });

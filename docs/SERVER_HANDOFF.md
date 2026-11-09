@@ -27,8 +27,14 @@ Updated November 9, 2026. The owner has confirmed the subscription proposal of *
 3. Integrate Android `VpnService` with a maintained protocol implementation; obtain platform permission explicitly and verify connect/disconnect, roaming, DNS and traffic accounting on actual devices.
 4. Secure the Cloudflare provisioning API with authentication, rate limits and abuse protection; bind VPN client keys to a user and an approved plan.
 5. Add Google Play Billing product `sovera_vpn_monthly` at proposed $3/month, server-side purchase verification, renewals, cancellations and refunds. Display the **localized price returned by Google Play**, which may differ from US$3.
-6. Add AdMob App ID and ad-unit IDs and consent flow where required. Free use still requires an authorized underlying data connection; it is not a method of making all carrier data free.
-7. Test privacy, Play VPN declarations, billing and ads; build/sign an AAB and run the Play Console test tracks before public release.
+6. Keep advertising off in both plans for now. Free use still requires an authorized underlying data connection; it is not a method of making all carrier data free.
+7. Test privacy, Play VPN declarations and billing; build/sign an AAB and run the Play Console test tracks before public release.
+
+## Server and advertising decision (November 9, 2026)
+
+- The connected DigitalOcean account currently lists **no droplets**. The owner prefers Singapore and previously mentioned a ~$6/month VPS, but no VPN endpoint has been created or tested.
+- Do not silently substitute a larger, more expensive remote-development droplet for the requested VPN gateway.
+- The owner's latest instruction is **no ads now**. Both Free and VIP stay ad-free until a new explicit request to enable ads.
 
 ## Owner-facing handoff question
 
