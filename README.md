@@ -4,7 +4,7 @@ An original, clean-room Android VPN product project. It is **not** a repackaged 
 
 > **Current state — developer preview, NOT A WORKING VPN OR PUBLISHABLE BUILD.**
 >
-> Cloudflare manages accounts, server metadata and VIP entitlement records; it cannot replace the actual VPN tunnel endpoint. The Android Connect button is intentionally disabled until a real protocol implementation and authorized endpoint are integrated and tested. Google Play Billing and AdMob are not enabled, so there are no live charges or ads.
+> Cloudflare manages accounts, server metadata and VIP entitlement records; it cannot replace the actual VPN tunnel endpoint. The Android Connect button is intentionally disabled until a real protocol implementation and authorized endpoint are integrated and tested. Google Play Billing and advertising are not enabled, so there are no live charges or ads.
 
 ## What has been implemented
 
@@ -13,8 +13,11 @@ An original, clean-room Android VPN product project. It is **not** a repackaged 
 - Cloudflare Worker control API prepared for D1.
 - D1 schema for users, sessions, server metadata, VIP entitlements and admin audit.
 - Web-based admin dashboard with role-protected user management, manual VIP grants, account blocking and draft server entries.
-- Free (ads intended) and monthly VIP (ad-free intended) plan metadata.
+- Free and proposed $3/month VIP plan metadata. Both are **ad-free for now**; advertising is postponed at the owner's request.
+- Device-side encrypted session persistence, sign-out and a server catalog that does not claim unavailable tunnels are usable.
+- Proposed VIP price is **US$3 per month**. This is not a live price or purchase offer: Google Play will supply the actual localized price after its subscription product is configured.
 - API tests (`cd backend && npm test`).
+- GitHub Actions checks for Cloudflare API syntax/tests and a preview Android APK build.
 - New Android package `com.soverixnet.soveravpn`, targeting Android 16 / API 36.
 
 ## Repository structure
@@ -27,6 +30,7 @@ An original, clean-room Android VPN product project. It is **not** a repackaged 
 | `backend/cloudflare.config.ts` | `cf` CLI project config (Cloudflare Workers + D1) |
 | `docs/ARCHITECTURE.md` | End-to-end architecture and security boundaries |
 | `docs/RELEASE_CHECKLIST.md` | Honest checklist for Play release readiness |
+| `docs/SERVER_HANDOFF.md` | Server access verification and owner handoff checklist |
 
 ## Build / test
 
@@ -38,11 +42,17 @@ npm install
 npm test
 ```
 
-The official `cf` CLI configuration is in `backend/cloudflare.config.ts` and expects a D1 database named `sovera-vpn-staging`. Do not deploy until the migration and security prerequisites are in place. Do not put tokens, API keys or VPN private keys into source code.
+The official `cf` CLI configuration is in `backend/cloudflare.config.ts`. The `sovera-vpn-staging` D1 database and `sovera-vpn-control-staging` Worker were created in the owner's Cloudflare account on November 9, 2026. Its public Worker subdomain remains **disabled** until the security, abuse protections and real VPN endpoint are ready. Do not put tokens, API keys or VPN private keys into source code.
 
 ### Android
 
 Open `android/` in Android Studio (JDK 17, Android SDK 36, Gradle 8.13). A Gradle wrapper **property file** is included, but the wrapper binary is not generated in this environment. Generate the wrapper with a trusted local Gradle installation if needed. Use `SOVERA_API_BASE_URL` as a Gradle project property to set an HTTPS Worker URL. The application does not connect to a VPN in this preview.
+
+The GitHub Actions build can compile the debug preview and attach it as an artifact after the workflow passes; it does **not** create a working VPN or a Play Store-ready signed AAB.
+
+### Advertising decision (November 9, 2026)
+
+Do not show advertisements or bundle an advertising SDK in the initial release. The Free tier and VIP tier both return `ads: false` from `/v1/plans`; the Android app has no ad placement. Advertising is a future opt-in product change requiring fresh privacy and Play policy review, consent handling where required, SDK configuration and tests. It is **not** enabled automatically.
 
 ## Security and limitations
 

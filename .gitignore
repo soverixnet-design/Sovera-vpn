@@ -1,0 +1,13 @@
+.DS_Store
+.env
+.dev.vars
+*.keystore
+*.jks
+local.properties
+.gradle/
+**/build/
+node_modules/
+.cloudflare/
+.wrangler/
+.idea/
+*.iml
